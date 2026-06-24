@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tourist Safety System — Register</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;600;700&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #080C14;
+      --surface:   #0E1520;
+      --card:      #131D2E;
+      --border:    #1E2D45;
+      --accent:    #2563EB;
+      --accent2:   #10B981;
+      --danger:    #EF4444;
+      --gold:      #F59E0B;
+      --text:      #E8EDF5;
+      --muted:     #64748B;
+      --label:     #94A3B8;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-badge {
+      width: 36px; height: 36px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: grid; place-items: center;
+      font-size: 18px;
+    }
+    .logo-text { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 16px; }
+    .logo-sub  { font-size: 11px; color: var(--muted); margin-top: 1px; }
+    .header-status {
+      margin-left: auto;
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--accent2);
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent2); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    /* ── Main ── */
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 0;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      width: 100%;
+    }
+
+    /* ── Left Panel ── */
+    .left {
+      padding-right: 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .eyebrow {
+      font-size: 11px; font-weight: 600; letter-spacing: 2px;
+      color: var(--accent); text-transform: uppercase; margin-bottom: 16px;
+    }
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 38px; font-weight: 700; line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    h1 span { color: var(--accent2); }
+    .subtitle { font-size: 15px; color: var(--label); line-height: 1.7; margin-bottom: 36px; }
+
+    .feature-list { display: flex; flex-direction: column; gap: 14px; }
+    .feature {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 14px 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    .feature-icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      display: grid; place-items: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .f-blue  { background: rgba(37,99,235,.15); }
+    .f-green { background: rgba(16,185,129,.15); }
+    .f-gold  { background: rgba(245,158,11,.15); }
+    .f-red   { background: rgba(239,68,68,.15); }
+    .feature-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+    .feature-desc  { font-size: 12px; color: var(--muted); }
+
+    /* ── Form Card ── */
+    .form-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .form-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 20px; font-weight: 700; margin-bottom: 4px;
+    }
+    .form-sub { font-size: 12px; color: var(--muted); margin-bottom: 24px; }
+
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-size: 12px; font-weight: 500; color: var(--label); margin-bottom: 6px; }
+
+    input, select {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: border-color .2s;
+    }
+    input:focus, select:focus { border-color: var(--accent); }
+    input::placeholder { color: var(--muted); }
+    select option { background: var(--surface); }
+
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .btn-register {
+      width: 100%;
+      margin-top: 8px;
+      padding: 12px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: 'Space Grotesk', sans-serif;
+      cursor: pointer;
+      transition: background .2s, transform .1s;
+    }
+    .btn-register:hover { background: #1D4ED8; }
+    .btn-register:active { transform: scale(.98); }
+
+    /* ── Success Card ── */
+    .success-card {
+      display: none;
+      background: var(--card);
+      border: 1px solid var(--accent2);
+      border-radius: 16px;
+      padding: 32px;
+      text-align: center;
+      animation: fadeIn .4s ease;
+    }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+    .success-icon {
+      width: 64px; height: 64px;
+      background: rgba(16,185,129,.15);
+      border-radius: 50%;
+      display: grid; place-items: center;
+      font-size: 28px;
+      margin: 0 auto 16px;
+    }
+    .success-title { font-family:'Space Grotesk',sans-serif; font-size:20px; font-weight:700; color:var(--accent2); margin-bottom:8px; }
+    .success-sub   { font-size:13px; color:var(--muted); margin-bottom:24px; }
+
+    .id-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+      text-align: left;
+    }
+    .id-label { font-size:11px; color:var(--muted); margin-bottom:4px; }
+    .id-value {
+      font-family: 'Space Grotesk', monospace;
+      font-size: 13px;
+      color: var(--accent2);
+      word-break: break-all;
+    }
+    .tourist-name-display {
+      font-size: 15px; font-weight: 600; margin-bottom: 4px;
+    }
+    .tourist-meta { font-size: 12px; color: var(--muted); }
+
+    .badge-row { display: flex; gap: 8px; justify-content: center; margin-top: 16px; }
+    .badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px; font-weight: 600;
+    }
+    .badge-blue  { background: rgba(37,99,235,.2);  color: #60A5FA; }
+    .badge-green { background: rgba(16,185,129,.2); color: #34D399; }
+    .badge-gold  { background: rgba(245,158,11,.2); color: #FCD34D; }
+
+    .btn-reset {
+      margin-top: 20px;
+      padding: 10px 24px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--label);
+      font-size: 13px;
+      cursor: pointer;
+      transition: border-color .2s;
+    }
+    .btn-reset:hover { border-color: var(--accent); color: var(--text); }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 11px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+
+    @media(max-width:768px) {
+      main { grid-template-columns:1fr; }
+      .left { padding-right:0; margin-bottom:32px; }
+      h1 { font-size:28px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="logo-badge">🗺</div>
+  <div>
+    <div class="logo-text">TouristSafe</div>
+    <div class="logo-sub">Smart Safety Monitoring System</div>
+  </div>
+  <div class="header-status">
+    <div class="dot"></div>
+    System Active
+  </div>
+</header>
+
+<!-- Main -->
+<main>
+
+  <!-- Left -->
+  <div class="left">
+    <div class="eyebrow">Tourist Safety Portal</div>
+    <h1>Register for <span>Safe Travel</span> Protection</h1>
+    <p class="subtitle">
+      Get real-time safety monitoring, geo-fence alerts, and a blockchain-secured
+      Digital ID — keeping you protected throughout your journey.
+    </p>
+    <div class="feature-list">
+      <div class="feature">
+        <div class="feature-icon f-blue">🔗</div>
+        <div>
+          <div class="feature-title">Blockchain Digital ID</div>
+          <div class="feature-desc">Tamper-proof identity stored on a secure blockchain network</div>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon f-green">📍</div>
+        <div>
+          <div class="feature-title">Geo-Fencing Alerts</div>
+          <div class="feature-desc">Instant alerts when entering restricted or high-risk zones</div>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon f-gold">🤖</div>
+        <div>
+          <div class="feature-title">AI Safety Monitoring</div>
+          <div class="feature-desc">Real-time anomaly detection with live risk scoring</div>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon f-red">🆘</div>
+        <div>
+          <div class="feature-title">One-Tap SOS</div>
+          <div class="feature-desc">Emergency response with auto incident report generation</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Card -->
+  <div>
+    <!-- Registration Form -->
+    <div class="form-card" id="formCard">
+      <div class="form-title">Tourist Registration</div>
+      <div class="form-sub">Fill in your details to get your Digital Safety ID</div>
+
+      <div class="form-group">
+        <label>Full Name *</label>
+        <input type="text" id="fullName" placeholder="Enter your full name" />
+      </div>
+
+      <div class="row-2">
+        <div class="form-group">
+          <label>Age *</label>
+          <input type="number" id="age" placeholder="Age" min="1" max="120" />
+        </div>
+        <div class="form-group">
+          <label>Gender</label>
+          <select id="gender">
+            <option value="">Select</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Nationality *</label>
+        <select id="nationality">
+          <option value="">Select country</option>
+          <option>Indian</option>
+          <option>American</option>
+          <option>British</option>
+          <option>Australian</option>
+          <option>Canadian</option>
+          <option>German</option>
+          <option>French</option>
+          <option>Japanese</option>
+          <option>Chinese</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Phone Number *</label>
+        <input type="tel" id="phone" placeholder="+91 XXXXX XXXXX" />
+      </div>
+
+      <div class="form-group">
+        <label>Emergency Contact *</label>
+        <input type="tel" id="emergency" placeholder="Emergency contact number" />
+      </div>
+
+      <div class="form-group">
+        <label>Destination / Travel Area *</label>
+        <input type="text" id="destination" placeholder="e.g. Ooty, Tamil Nadu" />
+      </div>
+
+      <div class="row-2">
+        <div class="form-group">
+          <label>Travel Start Date</label>
+          <input type="date" id="startDate" />
+        </div>
+        <div class="form-group">
+          <label>Travel End Date</label>
+          <input type="date" id="endDate" />
+        </div>
+      </div>
+
+      <button class="btn-register" onclick="register()">
+        Generate Digital ID & Register
+      </button>
+    </div>
+
+    <!-- Success Card -->
+    <div class="success-card" id="successCard">
+      <div class="success-icon">✅</div>
+      <div class="success-title">Registration Successful!</div>
+      <div class="success-sub">Your blockchain Digital ID has been generated</div>
+
+      <div class="id-box">
+        <div class="id-label">TOURIST NAME</div>
+        <div class="tourist-name-display" id="displayName">—</div>
+        <div class="tourist-meta" id="displayMeta">—</div>
+      </div>
+
+      <div class="id-box">
+        <div class="id-label">BLOCKCHAIN DIGITAL ID (SHA-256 Hash)</div>
+        <div class="id-value" id="digitalID">—</div>
+      </div>
+
+      <div class="id-box">
+        <div class="id-label">DESTINATION</div>
+        <div class="id-value" style="color:var(--gold)" id="displayDest">—</div>
+      </div>
+
+      <div class="badge-row">
+        <span class="badge badge-green">✓ ID Verified</span>
+        <span class="badge badge-blue">📍 Tracking Active</span>
+        <span class="badge badge-gold">🤖 AI Monitoring On</span>
+      </div>
+
+      <button class="btn-reset" onclick="reset()">Register Another Tourist</button>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  Smart Tourist Safety Monitoring System · AI · Geo-Fencing · Blockchain · Akalya A
+</footer>
+
+<script>
+  // Simple SHA-256 hash simulation (for demo)
+  async function sha256(message) {
+    const msgBuffer = new TextEncoder().encode(message);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray  = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  async function register() {
+    const name  = document.getElementById('fullName').value.trim();
+    const age   = document.getElementById('age').value.trim();
+    const nat   = document.getElementById('nationality').value;
+    const phone = document.getElementById('phone').value.trim();
+    const emerg = document.getElementById('emergency').value.trim();
+    const dest  = document.getElementById('destination').value.trim();
+
+    if (!name || !age || !nat || !phone || !emerg || !dest) {
+      alert('Please fill in all required fields (*)');
+      return;
+    }
+
+    const btn = document.querySelector('.btn-register');
+    btn.textContent = 'Generating ID...';
+    btn.disabled = true;
+
+    const dataString = `${name}|${age}|${nat}|${phone}|${dest}|${Date.now()}`;
+    const hash = await sha256(dataString);
+
+    // Show success
+    document.getElementById('displayName').textContent = name;
+    document.getElementById('displayMeta').textContent =
+      `Age: ${age}  ·  ${nat}  ·  📞 ${phone}`;
+    document.getElementById('digitalID').textContent = hash;
+    document.getElementById('displayDest').textContent = dest;
+
+    document.getElementById('formCard').style.display    = 'none';
+    document.getElementById('successCard').style.display = 'block';
+
+    btn.textContent = 'Generate Digital ID & Register';
+    btn.disabled = false;
+  }
+
+  function reset() {
+    document.getElementById('formCard').style.display    = 'flex';
+    document.getElementById('successCard').style.display = 'none';
+    document.querySelectorAll('input').forEach(i => i.value = '');
+    document.querySelectorAll('select').forEach(s => s.value = '');
+  }
+</script>
+</body>
+</html>

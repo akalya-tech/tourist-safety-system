@@ -12,7 +12,7 @@ A web-based system that monitors tourist safety in real-time using:
 
 ## Daily Progress
 - [x] Day 1 - Project synopsis created
-- [ ] Day 2 - System architecture diagram
+- [x] Day 2 - System architecture diagram
 - [ ] Day 3 - Tourist registration module
 - [ ] Day 4 - Blockchain Digital ID
 - [ ] Day 5 - Live map + Geo-Fencing

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Authority Dashboard — Tourist Safety Command Center</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #060A10; --surface: #0B1018; --card: #101820;
+      --border: #1A2535; --accent: #2563EB; --green: #10B981;
+      --red: #EF4444; --gold: #F59E0B; --purple: #8B5CF6;
+      --text: #E2E8F0; --muted: #4A5568;
+    }
+    body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); height:100vh; display:flex; flex-direction:column; overflow:hidden; }
+
+    /* Header */
+    header {
+      background:var(--surface); border-bottom:1px solid var(--border);
+      padding:10px 20px; display:flex; align-items:center; gap:12px; flex-shrink:0;
+    }
+    .logo { font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:700; }
+    .logo span { color:var(--red); }
+    .hstats { margin-left:auto; display:flex; gap:16px; }
+    .hstat { text-align:center; }
+    .hstat-val { font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:700; }
+    .hstat-label { font-size:10px; color:var(--muted); }
+    .live-dot { width:8px; height:8px; border-radius:50%; background:var(--green); animation:blink 1s infinite; display:inline-block; margin-right:4px; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+    /* Layout */
+    .layout { flex:1; display:grid; grid-template-columns:1fr 320px; overflow:hidden; }
+
+    /* Left: map + incidents */
+    .left { display:flex; flex-direction:column; overflow:hidden; }
+    #map { flex:1; min-height:0; }
+
+    /* Incident Bar */
+    .incident-bar {
+      background:var(--surface); border-top:1px solid var(--border);
+      padding:12px 16px; height:220px; overflow-y:auto;
+    }
+    .bar-title { font-family:'Space Grotesk',sans-serif; font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:10px; }
+    .incidents-grid { display:flex; flex-direction:column; gap:8px; }
+
+    .incident-card {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:8px; padding:12px 14px;
+      display:grid; grid-template-columns:1fr auto;
+      gap:8px; align-items:start;
+      border-left:3px solid;
+      transition:border-color .3s;
+    }
+    .inc-name { font-size:13px; font-weight:600; margin-bottom:3px; }
+    .inc-meta { font-size:11px; color:var(--muted); }
+    .inc-location { font-size:11px; color:var(--accent); margin-top:3px; }
+    .inc-actions { display:flex; flex-direction:column; gap:5px; align-items:flex-end; }
+    .status-badge {
+      padding:3px 8px; border-radius:20px;
+      font-size:10px; font-weight:700; white-space:nowrap;
+    }
+    .s-new      { background:rgba(239,68,68,.2);   color:var(--red);    border:1px solid rgba(239,68,68,.3); }
+    .s-progress { background:rgba(245,158,11,.2);  color:var(--gold);   border:1px solid rgba(245,158,11,.3); }
+    .s-resolved { background:rgba(16,185,129,.2);  color:var(--green);  border:1px solid rgba(16,185,129,.3); }
+    .btn-action {
+      padding:4px 10px; border-radius:6px; border:1px solid var(--border);
+      background:var(--surface); color:var(--text); font-size:10px;
+      cursor:pointer; white-space:nowrap; transition:background .2s;
+    }
+    .btn-action:hover { background:var(--accent); border-color:var(--accent); }
+
+    /* Right Panel */
+    .right-panel {
+      background:var(--surface); border-left:1px solid var(--border);
+      padding:14px; overflow-y:auto; display:flex; flex-direction:column; gap:14px;
+    }
+    .panel-title { font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:8px; }
+
+    /* Stats Cards */
+    .stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .stat-card {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:8px; padding:12px; text-align:center;
+    }
+    .stat-num { font-family:'Space Grotesk',sans-serif; font-size:24px; font-weight:700; }
+    .stat-lbl { font-size:10px; color:var(--muted); margin-top:2px; }
+
+    /* Tourist List */
+    .tourist-list { display:flex; flex-direction:column; gap:6px; }
+    .t-item {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:8px; padding:10px 12px;
+      display:flex; align-items:center; gap:10px;
+    }
+    .t-avatar {
+      width:30px; height:30px; border-radius:50%;
+      display:grid; place-items:center; font-size:14px; flex-shrink:0;
+    }
+    .t-name { font-size:12px; font-weight:600; }
+    .t-dest { font-size:10px; color:var(--muted); }
+    .t-risk {
+      margin-left:auto; padding:2px 8px; border-radius:20px;
+      font-size:10px; font-weight:700;
+    }
+    .r-low    { background:rgba(16,185,129,.2); color:var(--green); }
+    .r-medium { background:rgba(245,158,11,.2); color:var(--gold); }
+    .r-high   { background:rgba(239,68,68,.2);  color:var(--red); }
+
+    /* Verify Box */
+    .verify-box {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:8px; padding:14px;
+    }
+    .verify-input {
+      width:100%; background:var(--bg); border:1px solid var(--border);
+      border-radius:6px; padding:8px 10px; color:var(--text);
+      font-size:11px; font-family:monospace; outline:none; margin-bottom:8px;
+    }
+    .verify-input:focus { border-color:var(--accent); }
+    .btn-verify {
+      width:100%; padding:8px; background:var(--purple); color:#fff;
+      border:none; border-radius:6px; font-size:12px; font-weight:600;
+      cursor:pointer; transition:opacity .2s;
+    }
+    .btn-verify:hover { opacity:.85; }
+    .verify-result {
+      margin-top:8px; padding:8px 10px; border-radius:6px;
+      font-size:11px; display:none;
+    }
+    .v-success { background:rgba(16,185,129,.1); border:1px solid rgba(16,185,129,.3); color:#6EE7B7; }
+    .v-fail    { background:rgba(239,68,68,.1);  border:1px solid rgba(239,68,68,.3);  color:#FCA5A5; }
+
+    /* Alert Feed */
+    .alert-feed { display:flex; flex-direction:column; gap:6px; }
+    .alert-item {
+      padding:8px 10px; border-radius:6px; font-size:11px;
+      line-height:1.5; border-left:3px solid;
+    }
+    .a-danger  { background:rgba(239,68,68,.08);  border-color:var(--red);    color:#FCA5A5; }
+    .a-warning { background:rgba(245,158,11,.08); border-color:var(--gold);   color:#FCD34D; }
+    .a-info    { background:rgba(37,99,235,.08);  border-color:var(--accent); color:#93C5FD; }
+    .a-safe    { background:rgba(16,185,129,.08); border-color:var(--green);  color:#6EE7B7; }
+    .a-time    { font-size:10px; opacity:.5; margin-top:2px; }
+
+    /* SOS Toast */
+    .sos-toast {
+      display:none; position:fixed; top:70px; left:50%; transform:translateX(-50%);
+      background:var(--red); color:#fff; padding:12px 28px; border-radius:10px;
+      font-size:13px; font-weight:700; z-index:999;
+      box-shadow:0 8px 24px rgba(239,68,68,.5);
+      animation:pop .3s ease;
+    }
+    @keyframes pop { from{opacity:0;transform:translateX(-50%) scale(.8)} to{opacity:1;transform:translateX(-50%) scale(1)} }
+  </style>
+</head>
+<body>
+
+<div class="sos-toast" id="sosToast"></div>
+
+<!-- Header -->
+<header>
+  <div style="font-size:20px">🖥</div>
+  <div class="logo">Authority <span>Command Center</span> — Tourist Safety</div>
+  <div class="hstats">
+    <div class="hstat"><div class="hstat-val" style="color:var(--green)" id="safeCount">4</div><div class="hstat-label">SAFE</div></div>
+    <div class="hstat"><div class="hstat-val" style="color:var(--gold)"  id="cautionCount">1</div><div class="hstat-label">CAUTION</div></div>
+    <div class="hstat"><div class="hstat-val" style="color:var(--red)"   id="dangerCount">1</div><div class="hstat-label">DANGER</div></div>
+    <div class="hstat"><div class="hstat-val" style="color:var(--red)"   id="incCount">2</div><div class="hstat-label">INCIDENTS</div></div>
+    <div style="display:flex;align-items:center;font-size:12px;color:var(--green)">
+      <span class="live-dot"></span> LIVE
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- Left -->
+  <div class="left">
+    <div id="map"></div>
+    <!-- Incident Bar -->
+    <div class="incident-bar">
+      <div class="bar-title">Active Incidents</div>
+      <div class="incidents-grid" id="incidentsList"></div>
+    </div>
+  </div>
+
+  <!-- Right -->
+  <div class="right-panel">
+    <div>
+      <div class="panel-title">Overview</div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-num" style="color:var(--accent)" id="totalTourists">6</div><div class="stat-lbl">Total Tourists</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:var(--green)">98%</div><div class="stat-lbl">System Uptime</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:var(--gold)" id="activeZones">3</div><div class="stat-lbl">Active Zones</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:var(--purple)">AI</div><div class="stat-lbl">Monitoring ON</div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel-title">Live Tourists</div>
+      <div class="tourist-list" id="touristList"></div>
+    </div>
+
+    <div>
+      <div class="panel-title">Blockchain ID Verify</div>
+      <div class="verify-box">
+        <input class="verify-input" id="verifyInput" placeholder="Enter Digital ID hash..." />
+        <button class="btn-verify" onclick="verifyID()">🔗 Verify on Blockchain</button>
+        <div class="verify-result" id="verifyResult"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel-title">System Alerts</div>
+      <div class="alert-feed" id="alertFeed"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Data ────────────────────────────────────────────────────────────────
+const tourists = [
+  { id:'a3f9...d72c', name:'Ravi Kumar',    dest:'Ooty, TN',        lat:11.4102, lng:76.6950, risk:'HIGH',   color:'#EF4444' },
+  { id:'b2e1...c84a', name:'Priya Singh',   dest:'Munnar, KL',      lat:10.0889, lng:77.0595, risk:'LOW',    color:'#10B981' },
+  { id:'c7d3...f19b', name:'John Smith',    dest:'Kodaikanal, TN',  lat:10.2381, lng:77.4892, risk:'MEDIUM', color:'#F59E0B' },
+  { id:'d5f2...a37e', name:'Aiko Tanaka',   dest:'Wayanad, KL',     lat:11.6854, lng:76.1320, risk:'LOW',    color:'#10B981' },
+  { id:'e8c4...b62f', name:'Maria Garcia',  dest:'Coorg, KA',       lat:12.3375, lng:75.8069, risk:'LOW',    color:'#10B981' },
+  { id:'f1a7...e93d', name:'Arjun Nair',    dest:'Nilgiris, TN',    lat:11.3900, lng:76.7300, risk:'HIGH',   color:'#EF4444' },
+];
+
+const incidents = [
+  { id:'INC-001', tourist:'Ravi Kumar',  type:'SOS Alert',       location:'Nilgiri Forest Zone', time:'14:32', status:'new',      risk:'HIGH'   },
+  { id:'INC-002', tourist:'Arjun Nair',  type:'Geo-fence Breach',location:'Landslide Zone',      time:'14:28', status:'progress', risk:'HIGH'   },
+];
+
+const knownHashes = {
+  'a3f9...d72c': { name:'Ravi Kumar',   nat:'Indian',   dest:'Ooty, TN'       },
+  'b2e1...c84a': { name:'Priya Singh',  nat:'Indian',   dest:'Munnar, KL'     },
+  'c7d3...f19b': { name:'John Smith',   nat:'British',  dest:'Kodaikanal, TN' },
+  'd5f2...a37e': { name:'Aiko Tanaka',  nat:'Japanese', dest:'Wayanad, KL'    },
+};
+
+// ── Map ──────────────────────────────────────────────────────────────────
+const map = L.map('map').setView([11.0, 76.8], 8);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution:'© OpenStreetMap contributors'
+}).addTo(map);
+
+// Danger zones
+const zones = [
+  { name:'Nilgiri Forest', color:'#EF4444', coords:[[11.43,76.67],[11.43,76.73],[11.38,76.73],[11.38,76.67]] },
+  { name:'Flood Plain',    color:'#F59E0B', coords:[[11.39,76.68],[11.39,76.72],[11.36,76.72],[11.36,76.68]] },
+  { name:'Landslide Zone', color:'#EF4444', coords:[[11.44,76.71],[11.44,76.75],[11.41,76.75],[11.41,76.71]] },
+];
+zones.forEach(z => {
+  L.polygon(z.coords, { color:z.color, fillColor:z.color, fillOpacity:.15, weight:2, dashArray:'5,4' })
+    .addTo(map).bindTooltip(`⚠️ ${z.name}`, {sticky:true});
+});
+
+// Tourist markers
+tourists.forEach(t => {
+  const icon = L.divIcon({
+    html:`<div style="background:${t.color};border:2px solid white;border-radius:50%;width:14px;height:14px;box-shadow:0 0 8px ${t.color}"></div>`,
+    iconSize:[14,14], iconAnchor:[7,7]
+  });
+  L.marker([t.lat, t.lng], {icon}).addTo(map)
+    .bindPopup(`<b>${t.name}</b><br>📍 ${t.dest}<br>Risk: <b style="color:${t.color}">${t.risk}</b><br>ID: ${t.id}`);
+});
+
+// ── Render Tourist List ──────────────────────────────────────────────────
+function renderTourists() {
+  const list = document.getElementById('touristList');
+  list.innerHTML = tourists.map(t => `
+    <div class="t-item">
+      <div class="t-avatar" style="background:${t.color}22">👤</div>
+      <div>
+        <div class="t-name">${t.name}</div>
+        <div class="t-dest">${t.dest}</div>
+      </div>
+      <div class="t-risk ${t.risk==='HIGH'?'r-high':t.risk==='MEDIUM'?'r-medium':'r-low'}">${t.risk}</div>
+    </div>
+  `).join('');
+}
+
+// ── Render Incidents ─────────────────────────────────────────────────────
+function renderIncidents() {
+  const list = document.getElementById('incidentsList');
+  list.innerHTML = incidents.map((inc,i) => `
+    <div class="incident-card" id="inc${i}" style="border-left-color:${inc.risk==='HIGH'?'#EF4444':'#F59E0B'}">
+      <div>
+        <div class="inc-name">🆘 ${inc.type} — ${inc.tourist}</div>
+        <div class="inc-meta">${inc.id} · ${inc.time} · Risk: ${inc.risk}</div>
+        <div class="inc-location">📍 ${inc.location}</div>
+      </div>
+      <div class="inc-actions">
+        <span class="status-badge ${inc.status==='new'?'s-new':inc.status==='progress'?'s-progress':'s-resolved'}">
+          ${inc.status==='new'?'NEW':inc.status==='progress'?'IN PROGRESS':'RESOLVED'}
+        </span>
+        ${inc.status!=='resolved'?`<button class="btn-action" onclick="nextStatus(${i})">
+          ${inc.status==='new'?'Accept →':'Resolve ✓'}
+        </button>`:'<span style="font-size:10px;color:var(--green)">✓ Done</span>'}
+      </div>
+    </div>
+  `).join('');
+}
+
+function nextStatus(i) {
+  if (incidents[i].status === 'new') {
+    incidents[i].status = 'progress';
+    addAlert(`🚔 INC-00${i+1} accepted. Response team dispatched to ${incidents[i].location}.`, 'warning');
+  } else if (incidents[i].status === 'progress') {
+    incidents[i].status = 'resolved';
+    addAlert(`✅ INC-00${i+1} resolved. Tourist ${incidents[i].tourist} confirmed safe.`, 'safe');
+    document.getElementById('incCount').textContent =
+      parseInt(document.getElementById('incCount').textContent) - 1;
+  }
+  renderIncidents();
+}
+
+// ── Verify ID ────────────────────────────────────────────────────────────
+function verifyID() {
+  const val = document.getElementById('verifyInput').value.trim();
+  const result = document.getElementById('verifyResult');
+  if (knownHashes[val]) {
+    const t = knownHashes[val];
+    result.className = 'verify-result v-success';
+    result.style.display = 'block';
+    result.innerHTML = `✅ <b>VERIFIED</b><br>Name: ${t.name}<br>Nationality: ${t.nat}<br>Destination: ${t.dest}<br><span style="opacity:.6">Hash matched on blockchain</span>`;
+    addAlert(`🔗 ID verified: ${t.name} (${val})`, 'info');
+  } else if (val) {
+    result.className = 'verify-result v-fail';
+    result.style.display = 'block';
+    result.innerHTML = `❌ <b>NOT FOUND</b><br>Hash not found on blockchain network.`;
+  }
+}
+
+// ── Alert Feed ───────────────────────────────────────────────────────────
+function addAlert(msg, type='info') {
+  const feed = document.getElementById('alertFeed');
+  const now  = new Date().toLocaleTimeString();
+  const div  = document.createElement('div');
+  div.className = `alert-item a-${type}`;
+  div.innerHTML = `${msg}<div class="a-time">${now}</div>`;
+  feed.insertBefore(div, feed.firstChild);
+  if (feed.children.length > 10) feed.removeChild(feed.lastChild);
+}
+
+// ── SOS Simulation ───────────────────────────────────────────────────────
+function showSOS(msg) {
+  const t = document.getElementById('sosToast');
+  t.textContent = msg; t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 4000);
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────
+renderTourists();
+renderIncidents();
+addAlert('🖥 Authority dashboard initialized. All systems operational.', 'info');
+addAlert('📡 Monitoring 6 active tourists across 3 geo-fence zones.', 'info');
+
+// Simulate incoming SOS after 5 seconds
+setTimeout(() => {
+  showSOS('🆘 NEW SOS ALERT — Ravi Kumar — Nilgiri Forest Zone!');
+  addAlert('🆘 INCOMING SOS from Ravi Kumar at Nilgiri Forest Zone!', 'danger');
+}, 5000);
+
+// Simulate movement updates
+setInterval(() => {
+  tourists.forEach(t => {
+    t.lat += (Math.random()-.5)*0.002;
+    t.lng += (Math.random()-.5)*0.002;
+  });
+}, 3000);
+</script>
+</body>
+</html>

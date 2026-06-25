@@ -14,8 +14,8 @@ A web-based system that monitors tourist safety in real-time using:
 - [x] Day 1 - Project synopsis created
 - [x] Day 2 - System architecture diagram
 - [x] Day 3 - Tourist registration module
-- [ ] Day 4 - Blockchain Digital ID
-- [ ] Day 5 - Live map + Geo-Fencing
+- [x] Day 4 - Blockchain Digital ID
+- [x] Day 5 - Live map + Geo-Fencing
 - [ ] Day 6 - AI risk detection
 - [ ] Day 7 - SOS + Dashboard
 

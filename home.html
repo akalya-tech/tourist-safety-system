@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TouristSafe — Smart Tourist Safety System</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@600;700;800&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #080C14; --surface: #0E1520; --card: #131D2E;
+      --border: #1E2D45; --accent: #2563EB; --green: #10B981;
+      --red: #EF4444; --gold: #F59E0B; --purple: #8B5CF6;
+      --text: #E8EDF5; --muted: #64748B;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* Header */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 32px;
+      display: flex; align-items: center; gap: 12px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .logo-badge { width:36px; height:36px; background:var(--accent); border-radius:8px; display:grid; place-items:center; font-size:18px; }
+    .logo-text { font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px; }
+    .logo-sub  { font-size:11px; color:var(--muted); }
+    .live { margin-left:auto; display:flex; align-items:center; gap:6px; font-size:12px; color:var(--green); }
+    .dot { width:7px; height:7px; border-radius:50%; background:var(--green); animation:pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 80px 24px 60px;
+      background: radial-gradient(ellipse at 50% 0%, rgba(37,99,235,.15) 0%, transparent 70%);
+    }
+    .eyebrow {
+      display: inline-block;
+      background: rgba(37,99,235,.15);
+      border: 1px solid rgba(37,99,235,.3);
+      color: #60A5FA; font-size: 11px; font-weight: 600;
+      letter-spacing: 2px; text-transform: uppercase;
+      padding: 5px 14px; border-radius: 20px; margin-bottom: 20px;
+    }
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 52px; font-weight: 800; line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    h1 span { color: var(--accent); }
+    h1 em { color: var(--green); font-style: normal; }
+    .hero-sub {
+      font-size: 18px; color: var(--muted); max-width: 600px;
+      margin: 0 auto 40px; line-height: 1.7;
+    }
+
+    /* Stats row */
+    .stats {
+      display: flex; justify-content: center; gap: 40px;
+      margin-bottom: 60px; flex-wrap: wrap;
+    }
+    .stat { text-align: center; }
+    .stat-num { font-family:'Space Grotesk',sans-serif; font-size:32px; font-weight:700; }
+    .stat-lbl { font-size:12px; color:var(--muted); margin-top:2px; }
+
+    /* Module Cards */
+    .modules {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    .module-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      display: flex; flex-direction: column;
+      transition: border-color .2s, transform .2s;
+      text-decoration: none; color: inherit;
+      cursor: pointer;
+    }
+    .module-card:hover { transform: translateY(-4px); }
+    .module-card.blue   { border-top: 3px solid var(--accent); }
+    .module-card.blue:hover   { border-color: var(--accent); }
+    .module-card.green  { border-top: 3px solid var(--green); }
+    .module-card.green:hover  { border-color: var(--green); }
+    .module-card.red    { border-top: 3px solid var(--red); }
+    .module-card.red:hover    { border-color: var(--red); }
+
+    .module-icon {
+      width: 52px; height: 52px; border-radius: 12px;
+      display: grid; place-items: center;
+      font-size: 24px; margin-bottom: 16px;
+    }
+    .bg-blue   { background: rgba(37,99,235,.15); }
+    .bg-green  { background: rgba(16,185,129,.15); }
+    .bg-red    { background: rgba(239,68,68,.15); }
+
+    .module-title { font-family:'Space Grotesk',sans-serif; font-size:20px; font-weight:700; margin-bottom:8px; }
+    .module-desc  { font-size:13px; color:var(--muted); line-height:1.7; margin-bottom:20px; flex:1; }
+
+    .module-features { display:flex; flex-direction:column; gap:6px; margin-bottom:24px; }
+    .feature-tag {
+      display: flex; align-items: center; gap:8px;
+      font-size: 12px; color: var(--muted);
+    }
+    .feature-tag::before { content:'✓'; font-weight:700; color:var(--green); }
+
+    .btn-module {
+      display: block; width: 100%;
+      padding: 12px; border-radius: 10px; border: none;
+      font-size: 14px; font-weight: 600;
+      font-family: 'Space Grotesk', sans-serif;
+      cursor: pointer; text-align: center;
+      text-decoration: none;
+      transition: opacity .2s, transform .1s;
+    }
+    .btn-module:active { transform: scale(.97); }
+    .btn-blue   { background: var(--accent); color: #fff; }
+    .btn-green  { background: var(--green);  color: #fff; }
+    .btn-red    { background: var(--red);    color: #fff; }
+    .btn-module:hover { opacity: .88; }
+
+    /* Tech Section */
+    .tech-section {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 60px 24px;
+      text-align: center;
+    }
+    .section-title {
+      font-family:'Space Grotesk',sans-serif;
+      font-size:28px; font-weight:700; margin-bottom:8px;
+    }
+    .section-sub { font-size:14px; color:var(--muted); margin-bottom:40px; }
+
+    .tech-grid {
+      display: flex; flex-wrap: wrap;
+      justify-content: center; gap: 12px;
+      max-width: 800px; margin: 0 auto;
+    }
+    .tech-pill {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px; padding: 8px 16px;
+      font-size: 13px; font-weight: 500;
+    }
+
+    /* About Section */
+    .about {
+      max-width: 800px; margin: 0 auto;
+      padding: 60px 24px;
+      text-align: center;
+    }
+    .about-grid {
+      display: grid; grid-template-columns: repeat(2,1fr);
+      gap: 16px; margin-top: 32px; text-align: left;
+    }
+    .about-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 20px;
+    }
+    .about-card-title { font-size:14px; font-weight:600; margin-bottom:6px; }
+    .about-card-text  { font-size:12px; color:var(--muted); line-height:1.6; }
+
+    /* Footer */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 24px; text-align: center;
+      font-size: 12px; color: var(--muted);
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+
+    @media(max-width:768px) {
+      h1 { font-size:32px; }
+      .modules { grid-template-columns:1fr; }
+      .about-grid { grid-template-columns:1fr; }
+      .stats { gap:24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="logo-badge">🗺</div>
+  <div>
+    <div class="logo-text">TouristSafe</div>
+    <div class="logo-sub">Smart Tourist Safety Monitoring System</div>
+  </div>
+  <div class="live"><div class="dot"></div> System Active</div>
+</header>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="eyebrow">AI · Geo-Fencing · Blockchain</div>
+  <h1>Smart <span>Tourist Safety</span><br>Monitoring & <em>Incident Response</em></h1>
+  <p class="hero-sub">
+    A real-time tourist safety system combining Artificial Intelligence,
+    Geo-Fencing alerts, and Blockchain-based Digital Identity — keeping
+    tourists protected and authorities informed.
+  </p>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-num" style="color:var(--accent)">3</div>
+      <div class="stat-lbl">Core Technologies</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" style="color:var(--green)">5</div>
+      <div class="stat-lbl">Modules Built</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" style="color:var(--gold)">7</div>
+      <div class="stat-lbl">Days to Build</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" style="color:var(--purple)">12</div>
+      <div class="stat-lbl">GitHub Commits</div>
+    </div>
+  </div>
+</div>
+
+<!-- Module Cards -->
+<div class="modules">
+
+  <!-- Registration -->
+  <div class="module-card blue">
+    <div class="module-icon bg-blue">📱</div>
+    <div class="module-title">Tourist Registration</div>
+    <div class="module-desc">
+      Register tourists and generate a tamper-proof Blockchain Digital ID
+      using SHA-256 cryptographic hashing. Instant QR-based identity verification.
+    </div>
+    <div class="module-features">
+      <div class="feature-tag">SHA-256 Blockchain Digital ID</div>
+      <div class="feature-tag">7-field registration form</div>
+      <div class="feature-tag">Instant ID generation</div>
+      <div class="feature-tag">Emergency contact storage</div>
+    </div>
+    <a class="btn-module btn-blue" href="index.html">
+      📝 Open Registration →
+    </a>
+  </div>
+
+  <!-- Map -->
+  <div class="module-card green">
+    <div class="module-icon bg-green">🗺</div>
+    <div class="module-title">Live Map & Geo-Fencing</div>
+    <div class="module-desc">
+      Real-time tourist location tracking on an interactive map with
+      automated geo-fence alerts when tourists enter restricted danger zones.
+    </div>
+    <div class="module-features">
+      <div class="feature-tag">Real OpenStreetMap integration</div>
+      <div class="feature-tag">3 live danger zones</div>
+      <div class="feature-tag">Instant breach alerts</div>
+      <div class="feature-tag">AI risk score (Low/Medium/High)</div>
+    </div>
+    <a class="btn-module btn-green" href="map.html">
+      🗺 Open Live Map →
+    </a>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="module-card red">
+    <div class="module-icon bg-red">🖥</div>
+    <div class="module-title">Authority Dashboard</div>
+    <div class="module-desc">
+      Command center for authorities to monitor all tourists, manage SOS
+      incidents, and verify tourist identities via blockchain in real-time.
+    </div>
+    <div class="module-features">
+      <div class="feature-tag">6 tourists on live map</div>
+      <div class="feature-tag">SOS incident management</div>
+      <div class="feature-tag">Blockchain ID verification</div>
+      <div class="feature-tag">Real-time alert feed</div>
+    </div>
+    <a class="btn-module btn-red" href="dashboard.html">
+      🖥 Open Dashboard →
+    </a>
+  </div>
+
+</div>
+
+<!-- Tech Stack -->
+<div class="tech-section">
+  <div class="section-title">Technology Stack</div>
+  <div class="section-sub">Built with modern open-source technologies</div>
+  <div class="tech-grid">
+    <div class="tech-pill">🗺 Leaflet.js</div>
+    <div class="tech-pill">🌍 OpenStreetMap</div>
+    <div class="tech-pill">📍 Turf.js Geo-Fencing</div>
+    <div class="tech-pill">🤖 AI Anomaly Detection</div>
+    <div class="tech-pill">🔗 Blockchain Digital ID</div>
+    <div class="tech-pill">🔐 SHA-256 Hashing</div>
+    <div class="tech-pill">⛓ Ethereum / Solidity</div>
+    <div class="tech-pill">🐍 Python Flask</div>
+    <div class="tech-pill">🧠 scikit-learn</div>
+    <div class="tech-pill">⚛ React.js</div>
+    <div class="tech-pill">🌐 GitHub Pages</div>
+    <div class="tech-pill">📦 Git Version Control</div>
+  </div>
+</div>
+
+<!-- About -->
+<div class="about">
+  <div class="section-title">About This Project</div>
+  <div class="section-sub">Smart India Hackathon 2025 — Travel & Tourism · Software Category</div>
+  <div class="about-grid">
+    <div class="about-card">
+      <div class="about-card-title">🎯 Problem Statement</div>
+      <div class="about-card-text">Tourists in remote and high-risk areas face safety threats with no real-time monitoring, no fast identity verification, and no automated incident response system.</div>
+    </div>
+    <div class="about-card">
+      <div class="about-card-title">💡 Our Solution</div>
+      <div class="about-card-text">A unified platform combining AI anomaly detection, geo-fence breach alerts, and blockchain digital identity to protect tourists and empower authorities.</div>
+    </div>
+    <div class="about-card">
+      <div class="about-card-title">👩‍💻 Developer</div>
+      <div class="about-card-text">Akalya A · Computer Science & AI/ML · GitHub: akalya-tech · Built in 7 days with daily commits tracking progress.</div>
+    </div>
+    <div class="about-card">
+      <div class="about-card-title">📊 Project Stats</div>
+      <div class="about-card-text">7 days · 12 GitHub commits · 3 working web pages · 5 modules · 9/9 test cases passed · Deployed live on GitHub Pages.</div>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer>
+  Smart Tourist Safety Monitoring System · AI · Geo-Fencing · Blockchain · Built by Akalya A
+  &nbsp;|&nbsp;
+  <a href="https://github.com/akalya-tech/tourist-safety-system" target="_blank">GitHub Repository</a>
+</footer>
+
+</body>
+</html>

@@ -1,9 +1,6 @@
 ## Smart Tourist Safety Monitoring System
 
 > Real-time tourist safety using AI, Geo-Fencing & Blockchain Digital ID
-Live Demo
- **[Click here to view the live project]
-https://akalya-tech.github.io/tourist-safety-system**
 
 
 
